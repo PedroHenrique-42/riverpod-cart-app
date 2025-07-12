@@ -59,11 +59,10 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async => await ref.refresh(productsProvider),
+        onRefresh: () => ref.refresh(productsProvider.future),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: asyncProducts.when(
-            skipLoadingOnRefresh: false,
             data: (products) {
               if (products.isEmpty) {
                 return const Center(child: Text('Nenhum produto encontrado.'));
