@@ -63,4 +63,15 @@ class ProductsService {
     // Retorna a lista de produtos se tudo der certo
     return allProducts;
   }
+
+  Future<void> removeProduct(String productId) async {
+    // Simula uma espera de 1 segundo para a chamada de rede
+    await Future.delayed(const Duration(seconds: 1));
+    print('Produto $productId removido no backend.');
+
+    // Para testar um erro, você pode descomentar a linha abaixo.
+    // throw Exception('Falha de conexão: Não foi possível remover o produto.');
+
+    return; // Sucesso
+  }
 }

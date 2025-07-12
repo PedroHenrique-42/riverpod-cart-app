@@ -21,4 +21,21 @@ class Products extends _$Products {
     final repository = ref.read(productsServiceProvider);
     return repository.fetchProducts();
   }
+
+  Future<void> removeProduct(String productId) async {
+    final repository = ref.read(productsServiceProvider);
+
+    final oldState = state.value;
+
+    try {
+      await repository.removeProduct(productId);
+
+      final newList = state.value?.where((p) => p.id != productId).toList();
+
+      state = AsyncValue.data(newList ?? []);
+    } catch (e) {
+      print('Erro ao remover produto: $e');
+      state = AsyncValue.data(oldState ?? []);
+    }
+  }
 }
