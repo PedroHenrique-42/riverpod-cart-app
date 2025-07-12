@@ -17,47 +17,61 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Consumer(builder: (context, ref, child) {
-          final allProducts = ref.watch(productsProvider);
+          final productsResult = ref.watch(productsProvider);
           final cartProducts = ref.watch(cartNotifierProvider);
 
-          return GridView.builder(
-            itemCount: allProducts.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              childAspectRatio: 0.9,
-            ),
-            itemBuilder: (context, index) {
-              final product = allProducts[index];
-              final isInCart = cartProducts.contains(product);
+          return productsResult.when(
+            data: (products) {
+              if (products.isEmpty) {
+                return const Center(child: Text('Nenhum produto encontrado.'));
+              }
 
-              return Container(
-                padding: const EdgeInsets.all(20),
-                color: Colors.blueGrey.withOpacity(0.05),
-                child: Column(
-                  children: [
-                    Image.asset(product.image, width: 60, height: 60),
-                    Text(product.title),
-                    Text('\$${product.price}'),
-                    if (isInCart)
-                      TextButton(
-                        onPressed: () => ref
-                            .read(cartNotifierProvider.notifier)
-                            .removeProduct(product),
-                        child: const Text('Remove'),
-                      )
-                    else
-                      TextButton(
-                        onPressed: () => ref
-                            .read(cartNotifierProvider.notifier)
-                            .addProduct(product),
-                        child: const Text('Add to cart'),
-                      )
-                  ],
+              return GridView.builder(
+                itemCount: products.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 20,
+                  crossAxisSpacing: 20,
+                  childAspectRatio: 0.9,
                 ),
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  final isInCart = cartProducts.contains(product);
+
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    color: Colors.blueGrey.withOpacity(0.05),
+                    child: Column(
+                      children: [
+                        Image.asset(product.image, width: 60, height: 60),
+                        Text(product.title),
+                        Text('\$${product.price}'),
+                        if (isInCart)
+                          TextButton(
+                            onPressed: () => ref
+                                .read(cartNotifierProvider.notifier)
+                                .removeProduct(product),
+                            child: const Text('Remove'),
+                          )
+                        else
+                          TextButton(
+                            onPressed: () => ref
+                                .read(cartNotifierProvider.notifier)
+                                .addProduct(product),
+                            child: const Text('Add to cart'),
+                          )
+                      ],
+                    ),
+                  );
+                },
               );
             },
+            error: (error, stackTrace) => Center(
+              child: Text('Ocorreu um erro: $error'),
+            ),
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }),
       ),
