@@ -4,14 +4,11 @@ import 'package:riverpod_files/providers/cart_provider.dart';
 import 'package:riverpod_files/providers/products_provider.dart';
 import 'package:riverpod_files/shared/cart_icon.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final allProducts = ref.watch(productsProvider);
-    final cartProducts = ref.watch(cartNotifierProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Garage Sale Products'),
@@ -19,44 +16,50 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: GridView.builder(
-          itemCount: allProducts.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 20,
-            childAspectRatio: 0.9,
-          ),
-          itemBuilder: (context, index) {
-            final product = allProducts[index];
+        child: Consumer(builder: (context, ref, child) {
+          final allProducts = ref.watch(productsProvider);
+          final cartProducts = ref.watch(cartNotifierProvider);
 
-            return Container(
-              padding: const EdgeInsets.all(20),
-              color: Colors.blueGrey.withOpacity(0.05),
-              child: Column(
-                children: [
-                  Image.asset(product.image, width: 60, height: 60),
-                  Text(product.title),
-                  Text('\$${product.price}'),
-                  if (cartProducts.contains(product))
-                    TextButton(
-                      onPressed: () => ref
-                          .read(cartNotifierProvider.notifier)
-                          .removeProduct(product),
-                      child: const Text('Remove'),
-                    ),
-                  if (!cartProducts.contains(product))
-                    TextButton(
-                      onPressed: () => ref
-                          .read(cartNotifierProvider.notifier)
-                          .addProduct(product),
-                      child: const Text('Add to cart'),
-                    )
-                ],
-              ),
-            );
-          },
-        ),
+          return GridView.builder(
+            itemCount: allProducts.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 20,
+              childAspectRatio: 0.9,
+            ),
+            itemBuilder: (context, index) {
+              final product = allProducts[index];
+              final isInCart = cartProducts.contains(product);
+
+              return Container(
+                padding: const EdgeInsets.all(20),
+                color: Colors.blueGrey.withOpacity(0.05),
+                child: Column(
+                  children: [
+                    Image.asset(product.image, width: 60, height: 60),
+                    Text(product.title),
+                    Text('\$${product.price}'),
+                    if (isInCart)
+                      TextButton(
+                        onPressed: () => ref
+                            .read(cartNotifierProvider.notifier)
+                            .removeProduct(product),
+                        child: const Text('Remove'),
+                      )
+                    else
+                      TextButton(
+                        onPressed: () => ref
+                            .read(cartNotifierProvider.notifier)
+                            .addProduct(product),
+                        child: const Text('Add to cart'),
+                      )
+                  ],
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
   }

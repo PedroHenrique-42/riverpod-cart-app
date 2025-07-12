@@ -18,6 +18,7 @@ class CartIcon extends ConsumerWidget {
               return const CartScreen();
             }));
           },
+          padding: const EdgeInsets.all(12),
           icon: const Icon(Icons.shopping_bag_outlined),
         ),
         Positioned(
